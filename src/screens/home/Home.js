@@ -1,5 +1,23 @@
 import React, { Component } from 'react';
 import Header from '../../common/header/Header'
+import './Home.css'
+import { withStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardMedia from '@material-ui/core/CardMedia';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
+import CardActions from '@material-ui/core/CardActions';
+
+
+const styles = theme => ({
+    root: {
+        margin: '20px',
+    },
+    media: {
+        paddingTop: '100%',
+    },
+});
 
 class Home extends Component {
 
@@ -19,6 +37,8 @@ class Home extends Component {
             return e.restaurant_name.toLowerCase().includes(str.searchTerm.toLowerCase());
         });
         this.setState({currRestaurantDetails : newAr});
+        console.log(str);
+        console.log(this.state.currRestaurantDetails.length);
     }
 
     componentWillMount() {
@@ -33,8 +53,8 @@ class Home extends Component {
                 });
                 // Loop thru the entire data
                 for( let i=0; i<that.state.restaurantDetails.length; i++) {
-                    //console.log(that.state.restaurantDetails[i].restaurant_name);
                 }
+                that.setState({currRestaurantDetails : that.state.restaurantDetails});
             }
         });
         xhr.open("GET", "http://localhost:8080/api/restaurant");
@@ -43,12 +63,28 @@ class Home extends Component {
     }
 
     render() {
+        const { classes } = this.props;
+
         return (
         <div>
             <Header onSearchSubmit={this.updateRestaurantRecords}/>
+            <div className="grid-container">
+                {this.state.currRestaurantDetails.map((restaurants) => (
+                    <div key={restaurants.id}>
+                        <Card className={classes.root}>
+                            <CardMedia
+                                className={classes.media}
+                                image={restaurants.photo_URL}
+                            />
+                             <CardContent>
+                             </CardContent>
+                        </Card>
+                    </div>
+                ))}
+            </div>
         </div>
         )
     }
 }
 
-export default Home
+export default withStyles(styles)(Home);
