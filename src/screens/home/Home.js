@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Header from '../../common/header/Header'
 
 class Home extends Component {
 
@@ -7,7 +8,11 @@ class Home extends Component {
     }
 
     render() {
-        return (<div>Food Ordering App Home Page</div>)
+        return (
+        <div>
+            <Header />
+        </div>
+        )
     }
 }
 
