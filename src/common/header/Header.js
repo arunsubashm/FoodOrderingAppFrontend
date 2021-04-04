@@ -25,6 +25,16 @@ class Header extends Component {
 
     constructor() {
         super();
+        this.state = {
+            searchTerm:'',
+        }
+        this.searchHandler = this.searchHandler.bind(this);
+    }
+
+    /* Collect the search key and send to Home Page */
+    searchHandler = (e) => {
+        this.setState({searchTerm : e.target.value});
+        this.props.onSearchSubmit(this.state)
     }
 
     render() {
@@ -37,7 +47,7 @@ class Header extends Component {
             </div>
             <div className="header-search">
                 <InputLabel htmlFor="search"></InputLabel>
-                <Input classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
+                <Input onChange={this.searchHandler} classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
                 <InputAdornment position="start"><SearchIcon htmlColor="white"/></InputAdornment> } /> 
             </div>
             <div className="header-login">
