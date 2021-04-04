@@ -31,14 +31,12 @@ class Home extends Component {
     }
 
     /* Find all images matching the search string */
-    updateRestaurantRecords = (str) => {
-        this.setState({searchTerm : str.searchTerm});
+    updateRestaurantRecords = (event) => {
+        this.setState({searchTerm : event.target.value});
         var newAr = this.state.restaurantDetails.filter(function (e) {
-            return e.restaurant_name.toLowerCase().includes(str.searchTerm.toLowerCase());
+            return e.restaurant_name.toLowerCase().includes(event.target.value.toLowerCase());
         });
         this.setState({currRestaurantDetails : newAr});
-        console.log(str);
-        console.log(this.state.currRestaurantDetails.length);
     }
 
     componentWillMount() {
@@ -77,6 +75,9 @@ class Home extends Component {
                                 image={restaurants.photo_URL}
                             />
                              <CardContent>
+                                <Typography variant="h5" color="textPrimary" component="h5">
+                                    {restaurants.restaurant_name} 
+                                </Typography>
                              </CardContent>
                         </Card>
                     </div>

@@ -34,7 +34,8 @@ class Header extends Component {
     /* Collect the search key and send to Home Page */
     searchHandler = (e) => {
         this.setState({searchTerm : e.target.value});
-        this.props.onSearchSubmit(this.state)
+        //Pass the event to avoid delay due to setState
+        this.props.onSearchSubmit(e);
     }
 
     render() {
