@@ -13,8 +13,11 @@ const styles = {
     input: {
       color: "white"
     },
-    underline: {
-        color:"white"
+    underlineInput: {
+        "&:after": {
+            // focused
+            borderBottom: `2px solid white`
+        },
     }
   };
 
@@ -34,7 +37,7 @@ class Header extends Component {
             </div>
             <div className="header-search">
                 <InputLabel htmlFor="search"></InputLabel>
-                <Input classes={{input: classes.input, underline: classes.underline }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
+                <Input classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
                 <InputAdornment position="start"><SearchIcon htmlColor="white"/></InputAdornment> } /> 
             </div>
             <div className="header-login">
