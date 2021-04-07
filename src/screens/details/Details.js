@@ -365,7 +365,7 @@ class Details extends Component {
                                             {eachItemList.item_type == 'VEG' ?
                                                 <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                             }
-                                            <span>{eachItemList.item_name}</span>
+                                            {eachItemList.item_name}
                                      </span>
                                      
                                      <span style={{width:"20px"}}>₹{eachItemList.price}</span>
