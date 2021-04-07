@@ -12,6 +12,7 @@ import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Snackbar from '@material-ui/core/Snackbar';
+import Divider from '@material-ui/core/Divider';
 
 class Details extends Component {
 
@@ -357,14 +358,14 @@ class Details extends Component {
                      {restaurant_details.categories.map(eachCategoryDetails =>{
                          return <div>
                              <p style={{marginTop:"30px"}}>{eachCategoryDetails.category_name.toUpperCase()}</p>
-                             <hr/>
+                             <Divider />
                              {eachCategoryDetails.item_list.map(eachItemList =>{
                                  return <div className="eachItemList">
-                                      <span style={{width:"50px"}} className="rowFlex">
+                                      <span style={{width:"180px"}} className="rowFlex">
                                             {eachItemList.item_type == 'VEG' ?
                                                 <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                             }
-                                            {eachItemList.item_name}
+                                            <span>{eachItemList.item_name}</span>
                                      </span>
                                      
                                      <span style={{width:"20px"}}>₹{eachItemList.price}</span>
@@ -384,7 +385,7 @@ class Details extends Component {
                             <div style={{marginTop:"10px",marginBottom:"10px"}}>
                                 {selected_item_list.length > 0 && selected_item_list.map(eachSelectedItemList => {
                                     return <div className="rowFlexSpaceBetween">
-                                        <span style={{width:"20px"}} className="rowFlex">
+                                        <span style={{width:"180px"}} className="rowFlex">
                                             {eachSelectedItemList.item_type == 'VEG' ?
                                                 <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                             }
