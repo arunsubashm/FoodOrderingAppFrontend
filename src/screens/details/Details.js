@@ -192,7 +192,7 @@ class Details extends Component {
                                   {eachCategoryDetails.item_list.map(eachItemList =>{
                                       return <div className="eachItemList">
                                             <span style={{width:"180px"}} className="rowFlex">
-                                                  {eachItemList.item_type == 'VEG' ?
+                                                  {eachItemList.item_type == 'VEG' || eachItemList.item_type == 'veg' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
                                                   {eachItemList.item_name}
