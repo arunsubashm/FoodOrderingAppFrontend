@@ -13,18 +13,23 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Snackbar from '@material-ui/core/Snackbar';
 import Divider from '@material-ui/core/Divider';
+import Badge from '@material-ui/core/Badge';
+import Icon from '@material-ui/core/Icon';
 
 class Details extends Component {
 
     constructor(){
         super();
         this.handleSnackClose = this.handleSnackClose.bind(this);
+        this.redirectToCheckoutPage = this.redirectToCheckoutPage.bind(this);
         this.state = {
             openAddToCartSnack:false,
             openRemoveFromCartSnack : false,
+            addItemToCartSnack : false,
             vertical : 'bottom',
             horizontal : 'left', 
-           items_total_amount : 0,
+            items_total_amount : 0,
+            total_items_in_cart : 0,
            selected_item_list :[], 
           
            restaurant_details : null
@@ -52,7 +57,20 @@ class Details extends Component {
     }
 
     redirectToCheckoutPage(){
-        this.props.history.push("/checkout");
+        let selectedALLItemList = this.state.selected_item_list;
+        if(selectedALLItemList == null || selectedALLItemList.length == 0 || selectedALLItemList == []){
+            this.setState({
+                addItemToCartSnack : true
+            })
+            return;
+        }
+        //this.props.history.push("/checkout");
+        this.props.history.push({
+            pathname:"/checkout",
+            state:{
+                selected_item_list : this.state.selected_item_list
+             }
+        });
     }
 
     addItemToCart(id){
@@ -89,12 +107,15 @@ class Details extends Component {
             }) 
         }
         let totalAmount = 0;
+        let totalItemsInCart = 0;
         this.state.selected_item_list.map(eachItemList =>{
             totalAmount += eachItemList.price * eachItemList.quantity;
+            totalItemsInCart += eachItemList.quantity;
         }) 
         this.setState({
             items_total_amount : totalAmount,
-            openAddToCartSnack : true 
+            openAddToCartSnack : true ,
+            total_items_in_cart : totalItemsInCart
         })
        
     }
@@ -120,13 +141,16 @@ class Details extends Component {
         }) 
 
         let totalAmount = 0;
+        let totalItemsInCart = 0;
         newSelectedItemList.map(eachItemList =>{
             totalAmount += eachItemList.price * eachItemList.quantity;
+            totalItemsInCart += eachItemList.quantity;
         }) 
         this.setState({
             items_total_amount : totalAmount ,
             openAddToCartSnack : false,
-            openRemoveFromCartSnack:true
+            openRemoveFromCartSnack:true,
+            total_items_in_cart : totalItemsInCart
         })
 
     }
@@ -134,12 +158,13 @@ class Details extends Component {
     handleSnackClose(){
         this.setState({
             openAddToCartSnack : false,
-            openRemoveFromCartSnack : false
+            openRemoveFromCartSnack : false,
+            addItemToCartSnack : false
         })
     }
 
     render(){
-        const {restaurant_details,selected_item_list,openAddToCartSnack,vertical,horizontal,openRemoveFromCartSnack} = this.state;
+        const {restaurant_details,selected_item_list,openAddToCartSnack,vertical,horizontal,openRemoveFromCartSnack,addItemToCartSnack} = this.state;
          
         return(
             <Fragment>
@@ -171,7 +196,7 @@ class Details extends Component {
 
                               <div>                            
                                   <p className="rowFlex"> 
-                                      <span> <StarRateIcon/> </span>
+                                      <span> <Icon className="fa fa-inr" /> </span>
                                       <span>{restaurant_details.average_price}</span>
                                   </p>
                                   <p>AVERAGE COST FOR</p> 
@@ -195,10 +220,13 @@ class Details extends Component {
                                                   {eachItemList.item_type == 'VEG' || eachItemList.item_type == 'veg' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
-                                                  {eachItemList.item_name}
+                                                 <span style={{fontFamily:'Pascal'}}> {eachItemList.item_name}</span>
                                           </span>
                                           
-                                          <span style={{width:"20px"}}>₹{eachItemList.price}</span>
+                                          <span style={{width:"20px"}} className="rowFlex">
+                                               <Icon className="fa fa-inr" />
+                                               <span>{eachItemList.price}</span>
+                                          </span>
                                           
                                           <span style={{width:"20px",cursor:"pointer"}} onClick={()=>this.addItemToCart(eachItemList.id)}><AddIcon/></span>
                                       </div>
@@ -211,7 +239,12 @@ class Details extends Component {
                       <div className="restaurant_category_details_2">
                           <Card>
                               <CardContent>
-                                  <div className="rowFlex"><ShoppingCartIcon/> <span style={{paddingLeft:"10px"}}><h3>My Cart</h3></span></div>
+                                  <div className="rowFlex">
+                                       <Badge badgeContent={this.state.total_items_in_cart} color="primary" showZero>
+                                           <ShoppingCartIcon/> 
+                                       </Badge>
+                                       <span style={{paddingLeft:"10px"}}><h3>My Cart</h3></span>
+                                  </div>
                                   <div style={{marginTop:"10px",marginBottom:"10px"}}>
                                       {selected_item_list.length > 0 && selected_item_list.map(eachSelectedItemList => {
                                           return <div className="rowFlexSpaceBetween">
@@ -219,19 +252,26 @@ class Details extends Component {
                                                   {eachSelectedItemList.item_type == 'VEG' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
-                                                  {eachSelectedItemList.item_name}</span>
+                                                  <span style={{fontFamily:'Pascal',color:'grey'}}>{eachSelectedItemList.item_name}</span>
+                                              </span>
                                               <span className="rowFlex">
                                                   <span style={{cursor:"pointer",marginRight:"10px"}} onClick={()=>this.deleteItemFromCart(eachSelectedItemList.id)}><RemoveIcon/></span>
                                                   <span>{eachSelectedItemList.quantity}</span>
                                                   <span style={{cursor:"pointer",marginLeft:"10px"}} onClick={()=>this.addItemToCart(eachSelectedItemList.id)}><AddIcon/></span>
                                               </span>
-                                              <span>₹{eachSelectedItemList.quantity * eachSelectedItemList.price}</span>
+                                              <span className="rowFlex">
+                                                   <Icon className="fa fa-inr" />
+                                                   <span>{eachSelectedItemList.quantity * eachSelectedItemList.price}</span>
+                                              </span>
                                           </div>
                                       })}
                                   </div>
                                   <div className="rowFlexSpaceBetween">
                                       <span><b>Total Amount</b></span>
-                                      <span><b>₹{this.state.items_total_amount}</b></span>
+                                      <span className = "rowFlex">
+                                          <Icon className="fa fa-inr" />
+                                          <b>{this.state.items_total_amount}</b>
+                                      </span>
                                   </div>
                               </CardContent>
                               <CardActions>
@@ -257,7 +297,16 @@ class Details extends Component {
                       onClose={this.handleSnackClose}
                       message="Item quantity decreased by 1!"
                       key={vertical + horizontal}
-                  /> </div> 
+                  />
+                  <Snackbar
+                      anchorOrigin= {{ vertical, horizontal }}
+                      open={addItemToCartSnack}
+                      autoHideDuration={1000}
+                      onClose={this.handleSnackClose}
+                      message="Please add an item to your cart!"
+                      key={vertical + horizontal}
+                  /> 
+                </div> 
             }
             </Fragment>
         )
