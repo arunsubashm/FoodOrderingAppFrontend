@@ -168,11 +168,15 @@ class Header extends Component {
             <div className="header-logo">
             <FastfoodIcon htmlColor="white" fontSize="large"/>
             </div>
-            <div className="header-search">
-                <InputLabel htmlFor="search"></InputLabel>
-                <Input onChange={this.searchHandler} classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
-                <InputAdornment position="start"><SearchIcon htmlColor="white"/></InputAdornment> } /> 
-            </div>
+
+            { this.props.type === "Home" ?
+                (<div className="header-search">
+                    <InputLabel htmlFor="search"></InputLabel>
+                    <Input onChange={this.searchHandler} classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
+                    <InputAdornment position="start"><SearchIcon htmlColor="white"/></InputAdornment> } /> 
+                </div>) : null 
+            }
+
             <div className="header-login">
                 <div className="login-box">
                     <AccountCircleIcon fontSize="large"/>
