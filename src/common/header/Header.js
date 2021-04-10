@@ -12,8 +12,9 @@ import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { blue } from '@material-ui/core/colors';
+import { blue, red } from '@material-ui/core/colors';
 import FormControl from '@material-ui/core/FormControl';
+import { ContactsOutlined } from '@material-ui/icons';
 
 const styles = {
     input: {
@@ -28,7 +29,9 @@ const styles = {
     app: {
         backgroundColor: blue,
     },
-
+    errMsg: {
+        color: red,
+    },
   };
 
 class Header extends Component {
@@ -54,6 +57,9 @@ class Header extends Component {
             contactNumberSError: false,
             passwordSError: false,
             signupFailure: false,
+            accessToken:"",
+            customerDetails:"",
+            failureMessage:"",
         }
         this.searchHandler = this.searchHandler.bind(this);
     }
@@ -116,6 +122,10 @@ class Header extends Component {
 
     authHandler = () => {
         let error = false;
+        let data = null;
+        let xhr = new XMLHttpRequest();
+        let that = this;
+        let encodedAuth="";
 
         if (this.state.contactNumber === "") {
             this.setState({contactNumberError: true});
@@ -128,7 +138,25 @@ class Header extends Component {
         }
 
         if (error === false) {
-            this.setState({authFailure: true});
+            encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
+            console.log(encodedAuth);
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+                    if (this.status == 200) {
+                        that.setState({accessToken: this.getResponseHeader("access-token")});
+                        that.setState({customerDetails: JSON.parse(this.responseText)});
+                        console.log(that.state.customerDetails.message);
+                        that.setState({ modalIsOpen: false });
+                    } else {
+                        that.setState({failureMessage: JSON.parse(this.responseText).message});
+                        that.setState({authFailure: true});
+                    }
+                }
+            });
+            xhr.open("POST", "http://localhost:8080/api/customer/login");
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            xhr.setRequestHeader("authorization","Basic "+encodedAuth);
+            xhr.send(data);
         }
     }
 
@@ -202,6 +230,7 @@ class Header extends Component {
                                     {this.state.passwordError ? <span style={{color: "red"}}>required</span> : ''} 
                             </FormControl>
                             <br /><br />
+                            <p className="errMsg">{this.state.failureMessage}</p>
                             <br /><br />
                             <FormControl className={classes.buttonControl}>
                                 <Button onClick={() => this.authHandler()} variant="contained" color="primary">
