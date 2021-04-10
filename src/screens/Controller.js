@@ -7,6 +7,7 @@ class Controller extends Component {
 
     constructor() {
       super();
+      this.baseUrl= "http://localhost:8080/api/";
     }
   
     render() {
@@ -15,6 +16,7 @@ class Controller extends Component {
           <div className="main-container">
             <Route exact path='/' render={(props) => <Home {...props} />} />
             <Route path='/restaurant/:restaurantId' render={(props) => <Details {...props} />} />
+            <Route exact path="/checkout" render={props=> <Checkout {...props} baseUrl={this.baseUrl}/>} />
           </div>
         </Router>
       )

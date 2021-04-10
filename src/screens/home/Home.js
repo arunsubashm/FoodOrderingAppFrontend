@@ -8,6 +8,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
+import '../../../node_modules/font-awesome/css/font-awesome.min.css';
 
 
 const styles = theme => ({
@@ -26,19 +27,18 @@ class Home extends Component {
         this.state = {
             restaurantDetails: [],
             currRestaurantDetails: [],
+            restaurantCategories:'',
             searchTerm:' ',
         }
     }
 
     /* Find all images matching the search string */
-    updateRestaurantRecords = (str) => {
-        this.setState({searchTerm : str.searchTerm});
+    updateRestaurantRecords = (event) => {
+        this.setState({searchTerm : event.target.value});
         var newAr = this.state.restaurantDetails.filter(function (e) {
-            return e.restaurant_name.toLowerCase().includes(str.searchTerm.toLowerCase());
+            return e.restaurant_name.toLowerCase().includes(event.target.value.toLowerCase());
         });
         this.setState({currRestaurantDetails : newAr});
-        console.log(str);
-        console.log(this.state.currRestaurantDetails.length);
     }
 
     componentWillMount() {
@@ -53,13 +53,30 @@ class Home extends Component {
                 });
                 // Loop thru the entire data
                 for( let i=0; i<that.state.restaurantDetails.length; i++) {
+                    // Update the Categories for each of the resaurant
+                    let xhra = new Array(that.state.restaurantDetails.length);
+                    xhra[i]= new XMLHttpRequest();
+                    xhra[i].addEventListener("readystatechange", function () {
+                        if (this.readyState === 4) {
+                            that.setState({restaurantCategories: JSON.parse(this.responseText).restaurants[0].categories});
+                            that.state.restaurantDetails[i].categories = that.state.restaurantCategories;
+                        }
+                    });
+                    xhra[i].open("GET", "http://localhost:8080/api/restaurant/name/" + that.state.restaurantDetails[i].restaurant_name);
+                    xhra[i].setRequestHeader("Cache-Control", "no-cache");
+                    xhra[i].send(data);
                 }
                 that.setState({currRestaurantDetails : that.state.restaurantDetails});
+                that.state.currRestaurantDetails.sort((a, b) => (a.customer_rating > b.customer_rating) ? 0 : 1);
             }
         });
         xhr.open("GET", "http://localhost:8080/api/restaurant");
         xhr.setRequestHeader("Cache-Control", "no-cache");
         xhr.send(data);
+    }
+
+    resturantDetailsHandler = () => {
+        console.log("resturantDetailsHandler");
     }
 
     render() {
@@ -71,12 +88,29 @@ class Home extends Component {
             <div className="grid-container">
                 {this.state.currRestaurantDetails.map((restaurants) => (
                     <div key={restaurants.id}>
-                        <Card className={classes.root}>
+                        <Card className={classes.root} onClick={() => this.resturantDetailsHandler()}>
                             <CardMedia
                                 className={classes.media}
                                 image={restaurants.photo_URL}
                             />
                              <CardContent>
+                                <Typography variant="h5" color="textPrimary" component="h5">
+                                    {restaurants.restaurant_name} 
+                                </Typography>
+                                <br></br>
+                                <Typography variant="body1" color="textPrimary" component="body1">
+                                    {restaurants.categories} 
+                                </Typography>
+                                <br></br>
+                                <br></br>
+                                <div className = "trailer">
+                                    <div className="star-box">
+                                        <span> <i className="fa fa-star" aria-hidden="true"></i> &nbsp; {restaurants.customer_rating} &nbsp; ({restaurants.number_customers_rated})</span>
+                                    </div>
+                                    <div className="rupee">
+                                        <span><i className="fa fa-inr" aria-hidden="true"></i> {restaurants.average_price} for two</span>
+                                    </div>
+                                </div>
                              </CardContent>
                         </Card>
                     </div>

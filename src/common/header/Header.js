@@ -7,7 +7,12 @@ import Input from '@material-ui/core/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Button from '@material-ui/core/Button';
+import Modal from 'react-modal';
 import { withStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import { blue } from '@material-ui/core/colors';
 
 const styles = {
     input: {
@@ -18,7 +23,10 @@ const styles = {
             // focused
             borderBottom: `2px solid white`
         },
-    }
+    },
+    app: {
+        backgroundColor: blue,
+    },
   };
 
 class Header extends Component {
@@ -27,6 +35,8 @@ class Header extends Component {
         super();
         this.state = {
             searchTerm:'',
+            modalIsOpen:false,
+            tabIndex:0,
         }
         this.searchHandler = this.searchHandler.bind(this);
     }
@@ -34,8 +44,21 @@ class Header extends Component {
     /* Collect the search key and send to Home Page */
     searchHandler = (e) => {
         this.setState({searchTerm : e.target.value});
-        this.props.onSearchSubmit(this.state)
+        //Pass the event to avoid delay due to setState
+        this.props.onSearchSubmit(e);
     }
+
+    openModal = () => {
+        this.setState({ modalIsOpen: true });
+    };
+    
+    closeModal = () => {
+        this.setState({ modalIsOpen: false });
+    };
+
+    handleChange = (event, newValue) => {
+        this.setState({tabIndex: newValue});
+    };
 
     render() {
         const { classes } = this.props;
@@ -53,7 +76,17 @@ class Header extends Component {
             <div className="header-login">
                 <div className="login-box">
                     <AccountCircleIcon fontSize="large"/>
-                    <Button>Login</Button>
+                    <Button onClick={this.openModal}>Login</Button>
+                    <Modal className = {classes.root, "myModal"} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
+                        <AppBar position="static">
+                            <Tabs onChange={this.handleChange}>
+                                <Tab label="LOGIN"></Tab>
+                                <Tab label="SIGNUP"></Tab>
+                            </Tabs>
+                        </AppBar>
+                        <div role="tabpanel" hidden={this.state.tabIndex !== 0}>Login</div>
+                        <div role="tabpanel" hidden={this.state.tabIndex !== 1}>Signup</div>
+                    </Modal>
                 </div>
             </div>
         </div>

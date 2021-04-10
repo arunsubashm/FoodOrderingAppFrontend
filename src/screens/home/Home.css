@@ -1,5 +1,30 @@
 /* 2 Column Grid */
 .grid-container {
     display: grid;
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: 25% 25% 25% 25%;
+}
+
+.trailer {
+    display:flex;
+}
+
+.star-box {
+    flex:1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color:yellowgreen;
+    height: 30px;
+    width: 100px;
+    color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.rupee {
+    flex:1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: 10px;
 }

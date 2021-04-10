@@ -41,3 +41,11 @@
     padding-right: 10px;
     padding-left: 10px;
   }
+  .myModal {
+    position:absolute;
+    width:30%;
+    height:60%;
+    left:35%;
+    top:20%;
+    background-color: whitesmoke;
+  }
