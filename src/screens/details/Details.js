@@ -10,7 +10,7 @@ import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Snackbar from '@material-ui/core/Snackbar';
 import Divider from '@material-ui/core/Divider';
 
