@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Home from '../screens/home/Home';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Details from './details/Details';
+import Checkout from './checkout/Checkout';
 
 class Controller extends Component {
 
