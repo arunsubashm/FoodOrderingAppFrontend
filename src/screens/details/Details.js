@@ -13,6 +13,7 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Snackbar from '@material-ui/core/Snackbar';
 import Divider from '@material-ui/core/Divider';
+import Badge from '@material-ui/core/Badge';
 
 class Details extends Component {
 
@@ -26,7 +27,8 @@ class Details extends Component {
             addItemToCartSnack : false,
             vertical : 'bottom',
             horizontal : 'left', 
-           items_total_amount : 0,
+            items_total_amount : 0,
+            total_items_in_cart : 0,
            selected_item_list :[], 
           
            restaurant_details : null
@@ -98,12 +100,15 @@ class Details extends Component {
             }) 
         }
         let totalAmount = 0;
+        let totalItemsInCart = 0;
         this.state.selected_item_list.map(eachItemList =>{
             totalAmount += eachItemList.price * eachItemList.quantity;
+            totalItemsInCart += eachItemList.quantity;
         }) 
         this.setState({
             items_total_amount : totalAmount,
-            openAddToCartSnack : true 
+            openAddToCartSnack : true ,
+            total_items_in_cart : totalItemsInCart
         })
        
     }
@@ -129,13 +134,16 @@ class Details extends Component {
         }) 
 
         let totalAmount = 0;
+        let totalItemsInCart = 0;
         newSelectedItemList.map(eachItemList =>{
             totalAmount += eachItemList.price * eachItemList.quantity;
+            totalItemsInCart += eachItemList.quantity;
         }) 
         this.setState({
             items_total_amount : totalAmount ,
             openAddToCartSnack : false,
-            openRemoveFromCartSnack:true
+            openRemoveFromCartSnack:true,
+            total_items_in_cart : totalItemsInCart
         })
 
     }
@@ -221,7 +229,12 @@ class Details extends Component {
                       <div className="restaurant_category_details_2">
                           <Card>
                               <CardContent>
-                                  <div className="rowFlex"><ShoppingCartIcon/> <span style={{paddingLeft:"10px"}}><h3>My Cart</h3></span></div>
+                                  <div className="rowFlex">
+                                       <Badge badgeContent={this.state.total_items_in_cart} color="primary" showZero>
+                                           <ShoppingCartIcon/> 
+                                       </Badge>
+                                       <span style={{paddingLeft:"10px"}}><h3>My Cart</h3></span>
+                                  </div>
                                   <div style={{marginTop:"10px",marginBottom:"10px"}}>
                                       {selected_item_list.length > 0 && selected_item_list.map(eachSelectedItemList => {
                                           return <div className="rowFlexSpaceBetween">
