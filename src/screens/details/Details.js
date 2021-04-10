@@ -14,6 +14,7 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import Snackbar from '@material-ui/core/Snackbar';
 import Divider from '@material-ui/core/Divider';
 import Badge from '@material-ui/core/Badge';
+import Icon from '@material-ui/core/Icon';
 
 class Details extends Component {
 
@@ -189,7 +190,7 @@ class Details extends Component {
 
                               <div>                            
                                   <p className="rowFlex"> 
-                                      <span> <StarRateIcon/> </span>
+                                      <span> <Icon className="fa fa-inr" /> </span>
                                       <span>{restaurant_details.average_price}</span>
                                   </p>
                                   <p>AVERAGE COST FOR</p> 
@@ -216,7 +217,10 @@ class Details extends Component {
                                                  <span style={{fontFamily:'Pascal'}}> {eachItemList.item_name}</span>
                                           </span>
                                           
-                                          <span style={{width:"20px"}}>₹{eachItemList.price}</span>
+                                          <span style={{width:"20px"}} className="rowFlex">
+                                               <Icon className="fa fa-inr" />
+                                               <span>{eachItemList.price}</span>
+                                          </span>
                                           
                                           <span style={{width:"20px",cursor:"pointer"}} onClick={()=>this.addItemToCart(eachItemList.id)}><AddIcon/></span>
                                       </div>
@@ -249,13 +253,19 @@ class Details extends Component {
                                                   <span>{eachSelectedItemList.quantity}</span>
                                                   <span style={{cursor:"pointer",marginLeft:"10px"}} onClick={()=>this.addItemToCart(eachSelectedItemList.id)}><AddIcon/></span>
                                               </span>
-                                              <span>₹{eachSelectedItemList.quantity * eachSelectedItemList.price}</span>
+                                              <span className="rowFlex">
+                                                   <Icon className="fa fa-inr" />
+                                                   <span>{eachSelectedItemList.quantity * eachSelectedItemList.price}</span>
+                                              </span>
                                           </div>
                                       })}
                                   </div>
                                   <div className="rowFlexSpaceBetween">
                                       <span><b>Total Amount</b></span>
-                                      <span><b>₹{this.state.items_total_amount}</b></span>
+                                      <span className = "rowFlex">
+                                          <Icon className="fa fa-inr" />
+                                          <b>{this.state.items_total_amount}</b>
+                                      </span>
                                   </div>
                               </CardContent>
                               <CardActions>
