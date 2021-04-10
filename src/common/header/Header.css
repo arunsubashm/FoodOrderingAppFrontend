@@ -43,9 +43,13 @@
   }
   .myModal {
     position:absolute;
-    width:30%;
-    height:60%;
+    width:auto;
+    height:auto;
     left:35%;
     top:20%;
+    padding:20px;
     background-color: whitesmoke;
+  }
+  .errMsg {
+      color:red;
   }

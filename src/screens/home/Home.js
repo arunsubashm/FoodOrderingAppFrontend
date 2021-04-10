@@ -14,6 +14,7 @@ import '../../../node_modules/font-awesome/css/font-awesome.min.css';
 const styles = theme => ({
     root: {
         margin: '20px',
+        cursor:"pointer",
     },
     media: {
         paddingTop: '100%',
@@ -75,8 +76,9 @@ class Home extends Component {
         xhr.send(data);
     }
 
-    resturantDetailsHandler = () => {
-        console.log("resturantDetailsHandler");
+    resturantDetailsHandler = (key) => {
+        let page = "/restaurant/" + key;
+        this.props.history.push(page, true);
     }
 
     render() {
@@ -84,11 +86,11 @@ class Home extends Component {
 
         return (
         <div>
-            <Header onSearchSubmit={this.updateRestaurantRecords}/>
+            <Header type="Home" onSearchSubmit={this.updateRestaurantRecords}/>
             <div className="grid-container">
                 {this.state.currRestaurantDetails.map((restaurants) => (
-                    <div key={restaurants.id}>
-                        <Card className={classes.root} onClick={() => this.resturantDetailsHandler()}>
+                    <div key={restaurants.id} onClick={() => this.resturantDetailsHandler(restaurants.id)}>
+                        <Card className={classes.root}>
                             <CardMedia
                                 className={classes.media}
                                 image={restaurants.photo_URL}
