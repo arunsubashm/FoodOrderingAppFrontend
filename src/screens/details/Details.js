@@ -64,7 +64,13 @@ class Details extends Component {
             })
             return;
         }
-        this.props.history.push("/checkout");
+        //this.props.history.push("/checkout");
+        this.props.history.push({
+            pathname:"/checkout",
+            state:{
+                selected_item_list : this.state.selected_item_list
+             }
+        });
     }
 
     addItemToCart(id){
