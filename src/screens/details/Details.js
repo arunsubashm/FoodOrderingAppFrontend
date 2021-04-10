@@ -19,9 +19,11 @@ class Details extends Component {
     constructor(){
         super();
         this.handleSnackClose = this.handleSnackClose.bind(this);
+        this.redirectToCheckoutPage = this.redirectToCheckoutPage.bind(this);
         this.state = {
             openAddToCartSnack:false,
             openRemoveFromCartSnack : false,
+            addItemToCartSnack : false,
             vertical : 'bottom',
             horizontal : 'left', 
            items_total_amount : 0,
@@ -52,6 +54,13 @@ class Details extends Component {
     }
 
     redirectToCheckoutPage(){
+        let selectedALLItemList = this.state.selected_item_list;
+        if(selectedALLItemList == null || selectedALLItemList.length == 0 || selectedALLItemList == []){
+            this.setState({
+                addItemToCartSnack : true
+            })
+            return;
+        }
         this.props.history.push("/checkout");
     }
 
@@ -134,12 +143,13 @@ class Details extends Component {
     handleSnackClose(){
         this.setState({
             openAddToCartSnack : false,
-            openRemoveFromCartSnack : false
+            openRemoveFromCartSnack : false,
+            addItemToCartSnack : false
         })
     }
 
     render(){
-        const {restaurant_details,selected_item_list,openAddToCartSnack,vertical,horizontal,openRemoveFromCartSnack} = this.state;
+        const {restaurant_details,selected_item_list,openAddToCartSnack,vertical,horizontal,openRemoveFromCartSnack,addItemToCartSnack} = this.state;
          
         return(
             <Fragment>
@@ -195,7 +205,7 @@ class Details extends Component {
                                                   {eachItemList.item_type == 'VEG' || eachItemList.item_type == 'veg' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
-                                                  {eachItemList.item_name}
+                                                 <span style={{fontFamily:'Pascal'}}> {eachItemList.item_name}</span>
                                           </span>
                                           
                                           <span style={{width:"20px"}}>₹{eachItemList.price}</span>
@@ -219,7 +229,8 @@ class Details extends Component {
                                                   {eachSelectedItemList.item_type == 'VEG' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
-                                                  {eachSelectedItemList.item_name}</span>
+                                                  <span style={{fontFamily:'Pascal',color:'grey'}}>{eachSelectedItemList.item_name}</span>
+                                              </span>
                                               <span className="rowFlex">
                                                   <span style={{cursor:"pointer",marginRight:"10px"}} onClick={()=>this.deleteItemFromCart(eachSelectedItemList.id)}><RemoveIcon/></span>
                                                   <span>{eachSelectedItemList.quantity}</span>
@@ -257,7 +268,16 @@ class Details extends Component {
                       onClose={this.handleSnackClose}
                       message="Item quantity decreased by 1!"
                       key={vertical + horizontal}
-                  /> </div> 
+                  />
+                  <Snackbar
+                      anchorOrigin= {{ vertical, horizontal }}
+                      open={addItemToCartSnack}
+                      autoHideDuration={1000}
+                      onClose={this.handleSnackClose}
+                      message="Please add an item to your cart!"
+                      key={vertical + horizontal}
+                  /> 
+                </div> 
             }
             </Fragment>
         )
