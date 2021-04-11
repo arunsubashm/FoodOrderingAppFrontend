@@ -68,7 +68,9 @@ class Details extends Component {
         this.props.history.push({
             pathname:"/checkout",
             state:{
-                selected_item_list : this.state.selected_item_list
+                selected_item_list : this.state.selected_item_list,
+                totalCartItemsValue : this.state.items_total_amount,
+                restaurantDetails : this.state.restaurant_details
              }
         });
     }
