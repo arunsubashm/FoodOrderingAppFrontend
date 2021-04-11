@@ -28,3 +28,11 @@
     align-items: center;
     margin-right: 10px;
 }
+
+@media only screen and (max-width: 600px) {
+    .grid-container {
+        display: grid;
+        grid-template-columns: 100%;
+    }
+
+}
