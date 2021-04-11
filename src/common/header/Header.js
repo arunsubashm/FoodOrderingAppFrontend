@@ -14,7 +14,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { blue, red } from '@material-ui/core/colors';
 import FormControl from '@material-ui/core/FormControl';
-import { ContactsOutlined } from '@material-ui/icons';
+import Snackbar from '@material-ui/core/Snackbar';
+import { Menu } from '@material-ui/core';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = {
     input: {
@@ -45,8 +47,11 @@ class Header extends Component {
             contactNumber: "",
             password: "",
             contactNumberError: false,
+            contactNumberValidationErr:false,
             passwordError: false,
+            passwordValidationErr: false,
             authFailure: false,
+            loggedin:false,
             firstName:"",
             lastName:"",
             email:"",
@@ -54,12 +59,21 @@ class Header extends Component {
             passwordS:"",
             firstNameError: false,
             emailError: false,
+            emailValidationErr: false,
             contactNumberSError: false,
+            contactNumberSValidationErr: false,
             passwordSError: false,
+            passwordSValidationErr: false,
             signupFailure: false,
+            signupFailureMessage:"",
             accessToken:"",
             customerDetails:"",
+            customerId:"",
             failureMessage:"",
+            signedUpNotify:false,
+            loggedinMsgDisp:false,
+            menuOpen:false,
+            anchorEl:"",
         }
         this.searchHandler = this.searchHandler.bind(this);
     }
@@ -79,6 +93,40 @@ class Header extends Component {
         this.setState({ modalIsOpen: false });
     };
 
+    msgClose = () => {
+        this.setState({ loggedinMsgDisp: false });
+    };
+
+    msgSClose = () => {
+        this.setState({ signedUpNotify: false });
+    };
+
+    menuClose = () => {
+        this.setState({ menuOpen: false });
+    };
+
+    menuOpenHandler = (e) => {
+        this.setState({ menuOpen: true });
+        this.setState({ anchorEl:e.currentTarget});
+    }
+
+    handleProfile = () => {
+        this.setState({ menuOpen: false });
+        let page = "/profile/";
+        this.props.history.push(page, true);
+    }
+
+    handleLogout = () => {
+        this.setState({menuOpen: false });
+
+        this.setState({accessToken: ""});
+        this.setState({customerDetails: ""});
+        this.setState({loggedin: false});
+        this.setState({loggedinMsgDisp: false});
+        this.setState({anchorEl:""});
+        
+    }
+
     handleChange = (event, newValue) => {
         this.setState({tabIndex: newValue});
     };
@@ -88,6 +136,9 @@ class Header extends Component {
         this.setState({contactNumber: event.target.value });
         this.setState({contactNumberError: false});
         this.setState({authFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({contactNumberValidationErr: false});
     }
         
     passwordChangeHandler = event => {
@@ -102,22 +153,36 @@ class Header extends Component {
         this.setState({signupFailure: false});
     }
 
+    lastNameChangeHandler = event => {
+        this.setState({lastName: event.target.value });
+        this.setState({signupFailure: false});
+    }
+
     emailChangeHandler = event => {
         this.setState({email: event.target.value });
         this.setState({emailError: false});
         this.setState({signupFailure: false});
+        
+        if (event.target.value.length == 0)
+            this.setState({emailValidationErr: false});
     }
 
     contactNumberSChangeHandler = event => {
         this.setState({contactSNumber: event.target.value });
         this.setState({contactNumberSError: false});
         this.setState({signupFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({contactNumberSValidationErr: false});
     }
 
     passwordSChangeHandler = event => {
         this.setState({passwordS: event.target.value });
         this.setState({passwordSError: false});
         this.setState({signupFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({passwordSValidationErr: false});
     }
 
     authHandler = () => {
@@ -130,8 +195,14 @@ class Header extends Component {
         if (this.state.contactNumber === "") {
             this.setState({contactNumberError: true});
             error = true;
+        } else {
+            let phoneno = /^\d{10}$/;
+            if (this.state.contactNumber.match(phoneno) === null) {
+                this.setState({contactNumberValidationErr: true});
+                error = true;
+            }
         }
-        
+
         if (this.state.password === "") {
             this.setState({passwordError: true});
             error = true;
@@ -139,14 +210,14 @@ class Header extends Component {
 
         if (error === false) {
             encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
-            console.log(encodedAuth);
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     if (this.status == 200) {
                         that.setState({accessToken: this.getResponseHeader("access-token")});
                         that.setState({customerDetails: JSON.parse(this.responseText)});
-                        console.log(that.state.customerDetails.message);
                         that.setState({ modalIsOpen: false });
+                        that.setState({loggedin: true});
+                        that.setState({loggedinMsgDisp: true});
                     } else {
                         that.setState({failureMessage: JSON.parse(this.responseText).message});
                         that.setState({authFailure: true});
@@ -162,6 +233,10 @@ class Header extends Component {
 
     signupHandler = () => {
         let error = false;
+        let requestData = {"contact_number":"", "email_address":"", "first_name":"", "last_name":"", "password":""}
+        let xhr = new XMLHttpRequest();
+        let that = this;
+        let data = null;
 
         if (this.state.firstName === "") {
             this.setState({firstNameError: true});
@@ -171,26 +246,71 @@ class Header extends Component {
         if (this.state.email === "") {
             this.setState({emailError: true});
             error = true;
+        } else {
+            var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            if (this.state.email.match(mailformat) === null) {
+                this.setState({emailValidationErr: true});
+                error = true;
+            }
         }
 
         if (this.state.contactSNumber === "") {
             this.setState({contactNumberSError: true});
             error = true;
+        } else {
+            var phoneno = /^\d{10}$/;
+            if (this.state.contactSNumber.match(phoneno) === null) {
+                this.setState({contactNumberSValidationErr: true});
+                error = true;
+            }
         }
 
         if (this.state.passwordS === "") {
             this.setState({passwordSError: true});
             error = true;
+        } else {
+            var passwordFormat =  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
+            if (this.state.passwordS.match(passwordFormat) === null) {
+                this.setState({passwordSValidationErr: true});
+                error = true;
+            }
         }
 
         if (error === false) {
-            this.setState({signupFailure: true});
+            
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+                    if ((this.status == 200) || 
+                        (this.status == 201)) {
+                        that.setState({customerId: this.getResponseHeader("id")});
+                        // Move to Login TAB
+                        that.setState({ tabIndex: 0 });
+                        that.setState({signupFailure: false});
+                        // Need to notify that user has successfuly signed up
+                        that.setState({signedUpNotify: true});
+                    } else {
+                        that.setState({signupFailureMessage: JSON.parse(this.responseText).message});
+                        that.setState({signupFailure: true});
+                    }
+                }
+            });
+            xhr.open("POST", "http://localhost:8080/api/customer/signup");
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("charset", "UTF-8");
+            requestData["contact_number"]=this.state.contactSNumber;
+            requestData["email_address"]=this.state.email;
+            requestData["first_name"]=this.state.firstName;
+            requestData["last_name"]=this.state.lastName;
+            requestData["password"]=this.state.passwordS;
+            data = JSON.stringify(requestData);
+            xhr.send(data);
         }
     }
 
     render() {
         const { classes } = this.props;
-
+        
         return (
         <div className="header">
             <div className="header-logo">
@@ -205,82 +325,128 @@ class Header extends Component {
                 </div>) : null 
             }
 
-            <div className="header-login">
-                <div className="login-box">
-                    <AccountCircleIcon fontSize="large"/>
-                    <Button onClick={this.openModal}>Login</Button>
-                    <Modal className = {classes.root, "myModal"} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
-                        <AppBar position="static">
-                            <Tabs onChange={this.handleChange}>
-                                <Tab label="LOGIN"></Tab>
-                                <Tab label="SIGNUP"></Tab>
-                            </Tabs>
-                        </AppBar>
-                        <div role="tabpanel" hidden={this.state.tabIndex !== 0}>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
-                                    <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.contactNumberError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                    <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.passwordError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <p className="errMsg">{this.state.failureMessage}</p>
-                            <br /><br />
-                            <FormControl className={classes.buttonControl}>
-                                <Button onClick={() => this.authHandler()} variant="contained" color="primary">
-                                    LOGIN
-                                </Button>
-                            </FormControl>
-                            <br /><br />
-                        </div>
-                        <div role="tabpanel" hidden={this.state.tabIndex !== 1}>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
-                                    <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.firstNameError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="last_name" required="true">Last Name</InputLabel>
-                                    <Input id="last_name" onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="Email" required="true">Email</InputLabel>
-                                    <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.emailError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                    <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.passwordSError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
-                                    <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.contactNumberSError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <br /><br />
-                            <FormControl className={classes.buttonControl}>
-                                <Button onClick={() => this.signupHandler()} variant="contained" color="primary">
-                                    SIGNUP
-                                </Button>
-                            </FormControl>
-                            <br /><br />
+            { this.state.signedUpNotify === true ? (
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
+                    autoHideDuration={10000}
+                    open={this.state.signedUpNotify}
+                    onClose={this.msgSClose}
+                    message="Registered successfully! Please login now!" />
+                    ) : null
+            }
+
+            { this.state.loggedin === true ?
+                (<div className="header-loggedin">
+                    <div className="loggedin-box">
+                        <Button color="inherit" className = "buttonStyle" onClick={this.menuOpenHandler}> 
+                            <AccountCircleIcon fontSize="large"/>
+                            &nbsp; {this.state.customerDetails.first_name} 
+                        </Button>
+                        <Snackbar
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
+                            autoHideDuration={10000}
+                            open={this.state.loggedinMsgDisp}
+                            onClose={this.msgClose}
+                            message="Logged in successfully! " />
+                        <Menu  anchorEl={this.state.anchorEl} keepMounted open={this.state.menuOpen} onClose={this.menuClose}>
+                            <MenuItem onClick={this.handleProfile}>My Profile</MenuItem>
+                            <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                    </div>) : (
+                <div className="header-login">
+                    <div className="login-box">
+                        <AccountCircleIcon fontSize="large"/>
+                        <Button onClick={this.openModal}>Login</Button>
+                        <Modal className = {classes.root, "myModal"} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
+                            <AppBar position="static">
+                                <Tabs onChange={this.handleChange}>
+                                    <Tab label="LOGIN"></Tab>
+                                    <Tab label="SIGNUP"></Tab>
+                                </Tabs>
+                            </AppBar>
+                            <div role="tabpanel" hidden={this.state.tabIndex !== 0}>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
+                                        <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.contactNumberError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.contactNumberValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Contact</span> : ''}
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="password" required="true">Password</InputLabel>
+                                        <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.passwordError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <p className="errMsg">{this.state.failureMessage}</p>
+                                <br /><br />
+                                <FormControl className={classes.buttonControl}>
+                                    <Button onClick={() => this.authHandler()} variant="contained" color="primary">
+                                        LOGIN
+                                    </Button>
+                                </FormControl>
+                                <br /><br />
                             </div>
-                    </Modal>
+                            <div role="tabpanel" hidden={this.state.tabIndex !== 1}>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
+                                        <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.firstNameError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="last_name" required="true">Last Name</InputLabel>
+                                        <Input id="last_name" onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="Email" required="true">Email</InputLabel>
+                                        <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.emailError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.emailValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Email</span> : ""}
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="password" required="true">Password</InputLabel>
+                                        <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.passwordSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.passwordSValidationErr ? <span style={{color: "red", textAlign:"left", overflowWrap:"break-word"}}>
+                                        Password must contain 
+                                        <br></br> atleast one capital 
+                                        <br></br> letter, one small letter,
+                                        <br></br> one number, and one 
+                                        <br></br> special character
+                                        </span> : ''}
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
+                                        <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.contactNumberSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.contactNumberSValidationErr ? <span style={{color: "red", textAlign:"left"}}>
+                                            Contact No. must
+                                            <br></br> contain only numbers add
+                                            <br></br> and must be 10 digits 
+                                            <br></br>long</span> : ""}
+                                </FormControl>
+                                <br /><br />
+                                <p className="errMsg">{this.state.signupFailureMessage}</p>
+                                <br /><br />
+                                <FormControl className={classes.buttonControl}>
+                                    <Button onClick={() => this.signupHandler()} variant="contained" color="primary">
+                                        SIGNUP
+                                    </Button>
+                                </FormControl>
+                                <br /><br />
+                                </div>
+                        </Modal>
+                    </div>
                 </div>
-            </div>
+                )
+            }
         </div>
         )
     }
