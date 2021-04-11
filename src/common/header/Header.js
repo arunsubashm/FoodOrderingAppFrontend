@@ -14,7 +14,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { blue, red } from '@material-ui/core/colors';
 import FormControl from '@material-ui/core/FormControl';
-import { ContactsOutlined } from '@material-ui/icons';
+import Snackbar from '@material-ui/core/Snackbar';
+import { Menu } from '@material-ui/core';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const styles = {
     input: {
@@ -47,6 +49,7 @@ class Header extends Component {
             contactNumberError: false,
             passwordError: false,
             authFailure: false,
+            loggedin:false,
             firstName:"",
             lastName:"",
             email:"",
@@ -60,6 +63,9 @@ class Header extends Component {
             accessToken:"",
             customerDetails:"",
             failureMessage:"",
+            loggedinMsgDisp:false,
+            menuOpen:false,
+            anchorEl:"",
         }
         this.searchHandler = this.searchHandler.bind(this);
     }
@@ -78,6 +84,34 @@ class Header extends Component {
     closeModal = () => {
         this.setState({ modalIsOpen: false });
     };
+
+    msgClose = () => {
+        this.setState({ loggedinMsgDisp: false });
+    };
+
+    menuClose = () => {
+        this.setState({ menuOpen: false });
+    };
+
+    menuOpenHandler = () => {
+        this.setState({ menuOpen: true });
+    }
+
+    handleProfile = () => {
+        this.setState({ menuOpen: false });
+        let page = "/profile/";
+        //this.props.history.push(page, true);
+    }
+
+    handleLogout = () => {
+        this.setState({menuOpen: false });
+
+        this.setState({accessToken: ""});
+        this.setState({customerDetails: ""});
+        this.setState({loggedin: false});
+        this.setState({loggedinMsgDisp: false});
+        
+    }
 
     handleChange = (event, newValue) => {
         this.setState({tabIndex: newValue});
@@ -145,8 +179,9 @@ class Header extends Component {
                     if (this.status == 200) {
                         that.setState({accessToken: this.getResponseHeader("access-token")});
                         that.setState({customerDetails: JSON.parse(this.responseText)});
-                        console.log(that.state.customerDetails.message);
                         that.setState({ modalIsOpen: false });
+                        that.setState({loggedin: true});
+                        that.setState({loggedinMsgDisp: true});
                     } else {
                         that.setState({failureMessage: JSON.parse(this.responseText).message});
                         that.setState({authFailure: true});
@@ -190,7 +225,7 @@ class Header extends Component {
 
     render() {
         const { classes } = this.props;
-
+        
         return (
         <div className="header">
             <div className="header-logo">
@@ -205,82 +240,103 @@ class Header extends Component {
                 </div>) : null 
             }
 
-            <div className="header-login">
-                <div className="login-box">
-                    <AccountCircleIcon fontSize="large"/>
-                    <Button onClick={this.openModal}>Login</Button>
-                    <Modal className = {classes.root, "myModal"} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
-                        <AppBar position="static">
-                            <Tabs onChange={this.handleChange}>
-                                <Tab label="LOGIN"></Tab>
-                                <Tab label="SIGNUP"></Tab>
-                            </Tabs>
-                        </AppBar>
-                        <div role="tabpanel" hidden={this.state.tabIndex !== 0}>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
-                                    <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.contactNumberError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                    <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.passwordError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <p className="errMsg">{this.state.failureMessage}</p>
-                            <br /><br />
-                            <FormControl className={classes.buttonControl}>
-                                <Button onClick={() => this.authHandler()} variant="contained" color="primary">
-                                    LOGIN
-                                </Button>
-                            </FormControl>
-                            <br /><br />
-                        </div>
-                        <div role="tabpanel" hidden={this.state.tabIndex !== 1}>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
-                                    <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.firstNameError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="last_name" required="true">Last Name</InputLabel>
-                                    <Input id="last_name" onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="Email" required="true">Email</InputLabel>
-                                    <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.emailError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                    <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.passwordSError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
-                                    <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
-                                    {this.state.contactNumberSError ? <span style={{color: "red"}}>required</span> : ''} 
-                            </FormControl>
-                            <br /><br />
-                            <br /><br />
-                            <FormControl className={classes.buttonControl}>
-                                <Button onClick={() => this.signupHandler()} variant="contained" color="primary">
-                                    SIGNUP
-                                </Button>
-                            </FormControl>
-                            <br /><br />
+            { this.state.loggedin === true ?
+                (<div className="header-loggedin">
+                    <div className="loggedin-box">
+                        <Button className = "buttonStyle" onClick={this.menuOpenHandler}> 
+                            <AccountCircleIcon fontSize="large"/>
+                            &nbsp; {this.state.customerDetails.first_name} 
+                        </Button>
+                        <Snackbar
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
+                            autoHideDuration={10000}
+                            open={this.state.loggedinMsgDisp}
+                            onClose={this.msgClose}
+                            message="Logged in successfully! " />
+                        <Menu  anchorEl={null} keepMounted open={this.state.menuOpen} onClose={this.menuClose}>
+                            <MenuItem onClick={this.handleProfile}>My Profile</MenuItem>
+                            <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                    </div>) : (
+                <div className="header-login">
+                    <div className="login-box">
+                        <AccountCircleIcon fontSize="large"/>
+                        <Button onClick={this.openModal}>Login</Button>
+                        <Modal className = {classes.root, "myModal"} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
+                            <AppBar position="static">
+                                <Tabs onChange={this.handleChange}>
+                                    <Tab label="LOGIN"></Tab>
+                                    <Tab label="SIGNUP"></Tab>
+                                </Tabs>
+                            </AppBar>
+                            <div role="tabpanel" hidden={this.state.tabIndex !== 0}>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
+                                        <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.contactNumberError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="password" required="true">Password</InputLabel>
+                                        <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.passwordError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <p className="errMsg">{this.state.failureMessage}</p>
+                                <br /><br />
+                                <FormControl className={classes.buttonControl}>
+                                    <Button onClick={() => this.authHandler()} variant="contained" color="primary">
+                                        LOGIN
+                                    </Button>
+                                </FormControl>
+                                <br /><br />
                             </div>
-                    </Modal>
+                            <div role="tabpanel" hidden={this.state.tabIndex !== 1}>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
+                                        <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.firstNameError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="last_name" required="true">Last Name</InputLabel>
+                                        <Input id="last_name" onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="Email" required="true">Email</InputLabel>
+                                        <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.emailError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="password" required="true">Password</InputLabel>
+                                        <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.passwordSError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
+                                        <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
+                                        {this.state.contactNumberSError ? <span style={{color: "red"}}>required</span> : ''} 
+                                </FormControl>
+                                <br /><br />
+                                <br /><br />
+                                <FormControl className={classes.buttonControl}>
+                                    <Button onClick={() => this.signupHandler()} variant="contained" color="primary">
+                                        SIGNUP
+                                    </Button>
+                                </FormControl>
+                                <br /><br />
+                                </div>
+                        </Modal>
+                    </div>
                 </div>
-            </div>
+                )
+            }
         </div>
         )
     }
