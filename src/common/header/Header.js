@@ -65,10 +65,12 @@ class Header extends Component {
             passwordSError: false,
             passwordSValidationErr: false,
             signupFailure: false,
-            signupFailureMsg:"",
+            signupFailureMessage:"",
             accessToken:"",
             customerDetails:"",
+            customerId:"",
             failureMessage:"",
+            signedUpNotify:false,
             loggedinMsgDisp:false,
             menuOpen:false,
             anchorEl:"",
@@ -93,6 +95,10 @@ class Header extends Component {
 
     msgClose = () => {
         this.setState({ loggedinMsgDisp: false });
+    };
+
+    msgSClose = () => {
+        this.setState({ signedUpNotify: false });
     };
 
     menuClose = () => {
@@ -144,6 +150,11 @@ class Header extends Component {
     firstNameChangeHandler = event => {
         this.setState({firstName: event.target.value });
         this.setState({firstNameError: false});
+        this.setState({signupFailure: false});
+    }
+
+    lastNameChangeHandler = event => {
+        this.setState({lastName: event.target.value });
         this.setState({signupFailure: false});
     }
 
@@ -199,7 +210,6 @@ class Header extends Component {
 
         if (error === false) {
             encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
-            console.log(encodedAuth);
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     if (this.status == 200) {
@@ -223,6 +233,10 @@ class Header extends Component {
 
     signupHandler = () => {
         let error = false;
+        let requestData = {"contact_number":"", "email_address":"", "first_name":"", "last_name":"", "password":""}
+        let xhr = new XMLHttpRequest();
+        let that = this;
+        let data = null;
 
         if (this.state.firstName === "") {
             this.setState({firstNameError: true});
@@ -263,7 +277,34 @@ class Header extends Component {
         }
 
         if (error === false) {
-            this.setState({signupFailure: true});
+            
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+                    if ((this.status == 200) || 
+                        (this.status == 201)) {
+                        that.setState({customerId: this.getResponseHeader("id")});
+                        // Move to Login TAB
+                        that.setState({ tabIndex: 0 });
+                        that.setState({signupFailure: false});
+                        // Need to notify that user has successfuly signed up
+                        that.setState({signedUpNotify: true});
+                    } else {
+                        that.setState({signupFailureMessage: JSON.parse(this.responseText).message});
+                        that.setState({signupFailure: true});
+                    }
+                }
+            });
+            xhr.open("POST", "http://localhost:8080/api/customer/signup");
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("charset", "UTF-8");
+            requestData["contact_number"]=this.state.contactSNumber;
+            requestData["email_address"]=this.state.email;
+            requestData["first_name"]=this.state.firstName;
+            requestData["last_name"]=this.state.lastName;
+            requestData["password"]=this.state.passwordS;
+            data = JSON.stringify(requestData);
+            xhr.send(data);
         }
     }
 
@@ -282,6 +323,16 @@ class Header extends Component {
                     <Input onChange={this.searchHandler} classes={{input: classes.input, underline: classes.underlineInput }} id="search" fullWidth="true" placeholder="Search by Restaurant Name" aria-describedby="my-helper-text" startAdornment={
                     <InputAdornment position="start"><SearchIcon htmlColor="white"/></InputAdornment> } /> 
                 </div>) : null 
+            }
+
+            { this.state.signedUpNotify === true ? (
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
+                    autoHideDuration={10000}
+                    open={this.state.signedUpNotify}
+                    onClose={this.msgSClose}
+                    message="Registered successfully! Please login now!" />
+                    ) : null
             }
 
             { this.state.loggedin === true ?
@@ -382,6 +433,7 @@ class Header extends Component {
                                             <br></br>long</span> : ""}
                                 </FormControl>
                                 <br /><br />
+                                <p className="errMsg">{this.state.signupFailureMessage}</p>
                                 <br /><br />
                                 <FormControl className={classes.buttonControl}>
                                     <Button onClick={() => this.signupHandler()} variant="contained" color="primary">
