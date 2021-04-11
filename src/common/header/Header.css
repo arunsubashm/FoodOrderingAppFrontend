@@ -53,16 +53,18 @@
   }
 
   .myModal {
-    position:absolute;
-    width:auto;
+    position:fixed;
+    width: auto;
     height:auto;
     left:35%;
     top:20%;
     padding:20px;
     background-color: whitesmoke;
+    text-align: center;
   }
   .errMsg {
       color:red;
+      text-align: center;
   }
   .buttonStyle {
       color:greenyellow;

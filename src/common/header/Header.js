@@ -47,7 +47,9 @@ class Header extends Component {
             contactNumber: "",
             password: "",
             contactNumberError: false,
+            contactNumberValidationErr:false,
             passwordError: false,
+            passwordValidationErr: false,
             authFailure: false,
             loggedin:false,
             firstName:"",
@@ -57,9 +59,13 @@ class Header extends Component {
             passwordS:"",
             firstNameError: false,
             emailError: false,
+            emailValidationErr: false,
             contactNumberSError: false,
+            contactNumberSValidationErr: false,
             passwordSError: false,
+            passwordSValidationErr: false,
             signupFailure: false,
+            signupFailureMsg:"",
             accessToken:"",
             customerDetails:"",
             failureMessage:"",
@@ -93,8 +99,9 @@ class Header extends Component {
         this.setState({ menuOpen: false });
     };
 
-    menuOpenHandler = () => {
+    menuOpenHandler = (e) => {
         this.setState({ menuOpen: true });
+        this.setState({ anchorEl:e.currentTarget});
     }
 
     handleProfile = () => {
@@ -110,6 +117,7 @@ class Header extends Component {
         this.setState({customerDetails: ""});
         this.setState({loggedin: false});
         this.setState({loggedinMsgDisp: false});
+        this.setState({anchorEl:""});
         
     }
 
@@ -122,6 +130,9 @@ class Header extends Component {
         this.setState({contactNumber: event.target.value });
         this.setState({contactNumberError: false});
         this.setState({authFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({contactNumberValidationErr: false});
     }
         
     passwordChangeHandler = event => {
@@ -140,18 +151,27 @@ class Header extends Component {
         this.setState({email: event.target.value });
         this.setState({emailError: false});
         this.setState({signupFailure: false});
+        
+        if (event.target.value.length == 0)
+            this.setState({emailValidationErr: false});
     }
 
     contactNumberSChangeHandler = event => {
         this.setState({contactSNumber: event.target.value });
         this.setState({contactNumberSError: false});
         this.setState({signupFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({contactNumberSValidationErr: false});
     }
 
     passwordSChangeHandler = event => {
         this.setState({passwordS: event.target.value });
         this.setState({passwordSError: false});
         this.setState({signupFailure: false});
+
+        if (event.target.value.length == 0)
+            this.setState({passwordSValidationErr: false});
     }
 
     authHandler = () => {
@@ -164,8 +184,14 @@ class Header extends Component {
         if (this.state.contactNumber === "") {
             this.setState({contactNumberError: true});
             error = true;
+        } else {
+            let phoneno = /^\d{10}$/;
+            if (this.state.contactNumber.match(phoneno) === null) {
+                this.setState({contactNumberValidationErr: true});
+                error = true;
+            }
         }
-        
+
         if (this.state.password === "") {
             this.setState({passwordError: true});
             error = true;
@@ -206,16 +232,34 @@ class Header extends Component {
         if (this.state.email === "") {
             this.setState({emailError: true});
             error = true;
+        } else {
+            var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            if (this.state.email.match(mailformat) === null) {
+                this.setState({emailValidationErr: true});
+                error = true;
+            }
         }
 
         if (this.state.contactSNumber === "") {
             this.setState({contactNumberSError: true});
             error = true;
+        } else {
+            var phoneno = /^\d{10}$/;
+            if (this.state.contactSNumber.match(phoneno) === null) {
+                this.setState({contactNumberSValidationErr: true});
+                error = true;
+            }
         }
 
         if (this.state.passwordS === "") {
             this.setState({passwordSError: true});
             error = true;
+        } else {
+            var passwordFormat =  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
+            if (this.state.passwordS.match(passwordFormat) === null) {
+                this.setState({passwordSValidationErr: true});
+                error = true;
+            }
         }
 
         if (error === false) {
@@ -253,7 +297,7 @@ class Header extends Component {
                             open={this.state.loggedinMsgDisp}
                             onClose={this.msgClose}
                             message="Logged in successfully! " />
-                        <Menu  anchorEl={null} keepMounted open={this.state.menuOpen} onClose={this.menuClose}>
+                        <Menu  anchorEl={this.state.anchorEl} keepMounted open={this.state.menuOpen} onClose={this.menuClose}>
                             <MenuItem onClick={this.handleProfile}>My Profile</MenuItem>
                             <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
                         </Menu>
@@ -275,13 +319,14 @@ class Header extends Component {
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
                                         <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.contactNumberError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.contactNumberError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.contactNumberValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Contact</span> : ''}
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="password" required="true">Password</InputLabel>
                                         <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.passwordError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.passwordError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                 </FormControl>
                                 <br /><br />
                                 <p className="errMsg">{this.state.failureMessage}</p>
@@ -298,7 +343,7 @@ class Header extends Component {
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
                                         <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.firstNameError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.firstNameError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
@@ -309,19 +354,32 @@ class Header extends Component {
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="Email" required="true">Email</InputLabel>
                                         <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.emailError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.emailError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.emailValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Email</span> : ""}
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="password" required="true">Password</InputLabel>
                                         <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.passwordSError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.passwordSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.passwordSValidationErr ? <span style={{color: "red", textAlign:"left", overflowWrap:"break-word"}}>
+                                        Password must contain 
+                                        <br></br> atleast one capital 
+                                        <br></br> letter, one small letter,
+                                        <br></br> one number, and one 
+                                        <br></br> special character
+                                        </span> : ''}
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
                                         <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
-                                        {this.state.contactNumberSError ? <span style={{color: "red"}}>required</span> : ''} 
+                                        {this.state.contactNumberSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
+                                        {this.state.contactNumberSValidationErr ? <span style={{color: "red", textAlign:"left"}}>
+                                            Contact No. must
+                                            <br></br> contain only numbers add
+                                            <br></br> and must be 10 digits 
+                                            <br></br>long</span> : ""}
                                 </FormControl>
                                 <br /><br />
                                 <br /><br />
