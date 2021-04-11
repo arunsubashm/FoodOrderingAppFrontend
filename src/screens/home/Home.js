@@ -88,7 +88,7 @@ class Home extends Component {
 
         return (
         <div>
-            <Header type="Home" onSearchSubmit={this.updateRestaurantRecords}/>
+            <Header type="Home" history = {this.props.history} onSearchSubmit={this.updateRestaurantRecords}/>
             {this.state.currRestaurantDetails.length === 0 ? 
                 (<div>
                     No restaurant with the given name.

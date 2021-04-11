@@ -113,7 +113,7 @@ class Header extends Component {
     handleProfile = () => {
         this.setState({ menuOpen: false });
         let page = "/profile/";
-        //this.props.history.push(page, true);
+        this.props.history.push(page, true);
     }
 
     handleLogout = () => {
@@ -338,7 +338,7 @@ class Header extends Component {
             { this.state.loggedin === true ?
                 (<div className="header-loggedin">
                     <div className="loggedin-box">
-                        <Button className = "buttonStyle" onClick={this.menuOpenHandler}> 
+                        <Button color="inherit" className = "buttonStyle" onClick={this.menuOpenHandler}> 
                             <AccountCircleIcon fontSize="large"/>
                             &nbsp; {this.state.customerDetails.first_name} 
                         </Button>

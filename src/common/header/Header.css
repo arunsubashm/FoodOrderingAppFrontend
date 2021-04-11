@@ -4,6 +4,13 @@
     display:flex;
   }
 
+@media only screen and (max-width: 600px) {
+    .header {
+        background-color: #263238;
+        display:flex;
+    }
+}   
+
   .header-logo {
     flex:1;
     display:flex;
@@ -67,7 +74,7 @@
       text-align: center;
   }
   .buttonStyle {
-      color:greenyellow;
+      color:white;
   }
   .header-loggedin {
     flex:1;
@@ -75,4 +82,5 @@
     justify-content: flex-end;
     align-items: center;
     margin-right: 20px;
+    color: white;
   }
