@@ -4,7 +4,7 @@
     display:flex;
   }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 600px) { /* Screen responsivness */
    
     .header {
       background-color: #263238;
@@ -51,7 +51,7 @@
     margin-right: 20px;
   }
 
-  .login-box {
+  .login-box { /* login box */
     display:flex;
     justify-content: flex-end;
     align-items: center;
@@ -62,7 +62,7 @@
     padding-left: 10px;
   }
 
-  .loggedin-box {
+  .loggedin-box { /* Display once logged in */
     display:flex;
     justify-content: flex-end;
     align-items: center;
@@ -72,7 +72,7 @@
     padding-left: 10px;
   }
 
-  .myModal {
+  .myModal { /* Definition of modal to show - login and signup */
     position:fixed;
     width: auto;
     height:auto;

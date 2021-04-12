@@ -43,7 +43,8 @@ class Header extends Component {
         this.state = {
             searchTerm:'',
             modalIsOpen: false,
-            tabIndex:0,
+            tabIndex:0, // Index to switch between Login and Sign up
+            // Details used for Login TAB
             contactNumber: "",
             password: "",
             contactNumberError: false,
@@ -52,6 +53,7 @@ class Header extends Component {
             passwordValidationErr: false,
             authFailure: false,
             loggedin:false,
+            // Details used for Sign up TAB
             firstName:"",
             lastName:"",
             email:"",
@@ -66,6 +68,7 @@ class Header extends Component {
             passwordSValidationErr: false,
             signupFailure: false,
             signupFailureMessage:"",
+            // Logged in customer details
             accessToken:"",
             customerDetails:"",
             customerId:"",
@@ -85,6 +88,7 @@ class Header extends Component {
         this.props.onSearchSubmit(e);
     }
 
+    // Cleanup all the login related details when we close modal or logged in
     cleanupLoginDetails = () => {
 
         this.setState({ contactNumber: "" });
@@ -97,6 +101,7 @@ class Header extends Component {
         this.setState({ failureMessage: "" });
     }
 
+    // cleanup all the signup related details when we close modal or signed up successfully
     cleanupSigninDetails = () => {
 
         this.setState({ firstName: "" });
@@ -146,12 +151,14 @@ class Header extends Component {
         this.setState({ anchorEl:e.currentTarget});
     }
 
+    // Re-direct to the profile page
     handleProfile = () => {
         this.setState({ menuOpen: false });
         let page = "/profile/";
         this.props.history.push(page, true);
     }
 
+    // Handling logout event
     handleLogout = () => {
         this.setState({menuOpen: false });
 
@@ -165,11 +172,12 @@ class Header extends Component {
         
     }
 
+    // Move between login and sign up TAB's
     handleChange = (event, newValue) => {
         this.setState({tabIndex: newValue});
     };
 
-    /* Handle Username and password inputs */
+    /* Handle contact number and password inputs */
     contactNumberChangeHandler = event => {
         this.setState({contactNumber: event.target.value });
         this.setState({contactNumberError: false});
@@ -177,6 +185,7 @@ class Header extends Component {
         this.setState({authFailure: false});
         this.setState({failureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({contactNumberValidationErr: false});
     }
@@ -188,6 +197,7 @@ class Header extends Component {
         this.setState({failureMessage: ""});
     }
 
+    /* Handle contact number, password, first, last name inputs */
     firstNameChangeHandler = event => {
         this.setState({firstName: event.target.value });
         this.setState({firstNameError: false});
@@ -208,6 +218,7 @@ class Header extends Component {
         this.setState({emailValidationErr: false});
         this.setState({signupFailureMessage: ""});
         
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({emailValidationErr: false});
     }
@@ -219,6 +230,7 @@ class Header extends Component {
         this.setState({contactNumberSValidationErr: false});
         this.setState({signupFailureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({contactNumberSValidationErr: false});
     }
@@ -230,10 +242,12 @@ class Header extends Component {
         this.setState({passwordSValidationErr: false});
         this.setState({signupFailureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({passwordSValidationErr: false});
     }
 
+    /* Handle login */
     authHandler = () => {
         let error = false;
         let data = null;
@@ -244,7 +258,7 @@ class Header extends Component {
         if (this.state.contactNumber === "") {
             this.setState({contactNumberError: true});
             error = true;
-        } else {
+        } else { /* Check if valid phone number is entered */
             let phoneno = /^\d{10}$/;
             if (this.state.contactNumber.match(phoneno) === null) {
                 this.setState({contactNumberValidationErr: true});
@@ -261,7 +275,7 @@ class Header extends Component {
             encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
-                    if (this.status == 200) {
+                    if (this.status == 200) { // Success
                         that.setState({accessToken: this.getResponseHeader("access-token")});
                         that.setState({customerDetails: JSON.parse(this.responseText)});
                         that.setState({ modalIsOpen: false });
@@ -273,7 +287,7 @@ class Header extends Component {
                         // Make sure it comes back in Login TAB
                         that.setState({ tabIndex: 0 });
                         that.props.onLogin(that.state.accessToken, that.state.customerDetails);
-                    } else {
+                    } else { // failure - display the error message received
                         that.setState({failureMessage: JSON.parse(this.responseText).message});
                         that.setState({authFailure: true});
                     }
@@ -286,6 +300,7 @@ class Header extends Component {
         }
     }
 
+    /* Handle sign up */
     signupHandler = () => {
         let error = false;
         let requestData = {"contact_number":"", "email_address":"", "first_name":"", "last_name":"", "password":""}
@@ -301,7 +316,7 @@ class Header extends Component {
         if (this.state.email === "") {
             this.setState({emailError: true});
             error = true;
-        } else {
+        } else { // check if proper email format is entered
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             if (this.state.email.match(mailformat) === null) {
                 this.setState({emailValidationErr: true});
@@ -312,7 +327,7 @@ class Header extends Component {
         if (this.state.contactSNumber === "") {
             this.setState({contactNumberSError: true});
             error = true;
-        } else {
+        } else { // Check if phone no format is correct
             var phoneno = /^\d{10}$/;
             if (this.state.contactSNumber.match(phoneno) === null) {
                 this.setState({contactNumberSValidationErr: true});
@@ -323,7 +338,7 @@ class Header extends Component {
         if (this.state.passwordS === "") {
             this.setState({passwordSError: true});
             error = true;
-        } else {
+        } else { // Check for proper password format
             var passwordFormat =  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
             if (this.state.passwordS.match(passwordFormat) === null) {
                 this.setState({passwordSValidationErr: true});
@@ -336,7 +351,7 @@ class Header extends Component {
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     if ((this.status == 200) || 
-                        (this.status == 201)) {
+                        (this.status == 201)) { // Success
                         that.setState({customerId: this.getResponseHeader("id")});
                         // Move to Login TAB
                         that.setState({ tabIndex: 0 });
@@ -345,7 +360,7 @@ class Header extends Component {
                         that.setState({signedUpNotify: true});
                         // cleanup all states pertaining to Signin
                         that.cleanupSigninDetails();
-                    } else {
+                    } else { // Request Failed, display the reason for failure
                         that.setState({signupFailureMessage: JSON.parse(this.responseText).message});
                         that.setState({signupFailure: true});
                     }
@@ -355,6 +370,7 @@ class Header extends Component {
             xhr.setRequestHeader("Cache-Control", "no-cache");
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.setRequestHeader("charset", "UTF-8");
+            // Filll in the signup details
             requestData["contact_number"]=this.state.contactSNumber;
             requestData["email_address"]=this.state.email;
             requestData["first_name"]=this.state.firstName;
@@ -374,6 +390,7 @@ class Header extends Component {
             <FastfoodIcon htmlColor="white" fontSize="large"/>
             </div>
 
+            {/* Display restaurant search if only in home page */}
             { this.props.type === "Home" ?
                 (<div className="header-search">
                     <InputLabel htmlFor="search"></InputLabel>
@@ -382,6 +399,7 @@ class Header extends Component {
                 </div>) : null 
             }
 
+            {/* Notify successful sign up at the Left Bottom Corner */}
             { this.state.signedUpNotify === true ? (
                 <Snackbar
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
@@ -392,6 +410,7 @@ class Header extends Component {
                     ) : null
             }
 
+            {/* Notify successful Login at the Left Bottom Corner */}
             { this.state.loggedin === true ?
                 (<div className="header-loggedin">
                     <div className="loggedin-box">

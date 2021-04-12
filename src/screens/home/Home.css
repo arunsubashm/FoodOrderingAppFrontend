@@ -1,4 +1,4 @@
-/* 2 Column Grid */
+/* 4 Column Grid */
 .grid-container {
     display: grid;
     grid-template-columns: 25% 25% 25% 25%;
@@ -29,7 +29,7 @@
     margin-right: 10px;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 600px) { /* screen responsiveness */
     .grid-container {
         display: grid;
         grid-template-columns: 100%;
