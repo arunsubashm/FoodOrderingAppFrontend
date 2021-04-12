@@ -42,7 +42,7 @@ class Details extends Component {
        var xhttp = new XMLHttpRequest();
        var currentThis = this;
        xhttp.onreadystatechange = function() {
-         if (this.readyState == 4 && this.status == 200) {
+         if (this.readyState === 4 && this.status === 200) {
              currentThis.setState({
                  restaurant_details : JSON.parse(this.responseText)
             })
@@ -58,7 +58,7 @@ class Details extends Component {
 
     redirectToCheckoutPage(){
         let selectedALLItemList = this.state.selected_item_list;
-        if(selectedALLItemList == null || selectedALLItemList.length == 0 || selectedALLItemList == []){
+        if(selectedALLItemList === null || selectedALLItemList.length === 0 || selectedALLItemList === []){
             this.setState({
                 addItemToCartSnack : true
             })
@@ -68,9 +68,9 @@ class Details extends Component {
         this.props.history.push({
             pathname:"/checkout",
             state:{
-                selected_item_list : this.state.selected_item_list,
+                cartItemList : JSON.stringify(this.state.selected_item_list),
                 totalCartItemsValue : this.state.items_total_amount,
-                restaurantDetails : this.state.restaurant_details
+                restaurant_name : this.state.restaurant_details.restaurant_name
              }
         });
     }
@@ -81,7 +81,7 @@ class Details extends Component {
         
         this.state.restaurant_details.categories.map(eachCategoryDetails =>{
              eachCategoryDetails.item_list.forEach(eachItemListDetails => {
-                 if(eachItemListDetails.id == id){
+                 if(eachItemListDetails.id === id){
                     currentItemToBeAdded = eachItemListDetails;
                  }
              })
@@ -90,7 +90,7 @@ class Details extends Component {
         let isItemAdded = false;
         let newSelectedItemList = selectedALLItemList.map(eachSelectedItem => {
              
-             if(eachSelectedItem.id == currentItemToBeAdded.id){
+             if(eachSelectedItem.id === currentItemToBeAdded.id){
                  eachSelectedItem.quantity = eachSelectedItem.quantity + 1;
                  isItemAdded = true; 
             }
@@ -125,8 +125,8 @@ class Details extends Component {
     deleteItemFromCart(id){
         let selectedALLItemList = this.state.selected_item_list;
         let newSelectedItemList = selectedALLItemList.filter(eachSelectedItem => {
-            if(eachSelectedItem.id == id){
-               if(eachSelectedItem.quantity != 1){
+            if(eachSelectedItem.id === id){
+               if(eachSelectedItem.quantity !== 1){
                    eachSelectedItem.quantity = eachSelectedItem.quantity - 1;
                    return true;
                }else{
@@ -219,7 +219,7 @@ class Details extends Component {
                                   {eachCategoryDetails.item_list.map(eachItemList =>{
                                       return <div className="eachItemList">
                                             <span style={{width:"180px"}} className="rowFlex">
-                                                  {eachItemList.item_type == 'VEG' || eachItemList.item_type == 'veg' ?
+                                                  {eachItemList.item_type === 'VEG' || eachItemList.item_type === 'veg' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
                                                  <span style={{fontFamily:'Pascal'}}> {eachItemList.item_name}</span>
@@ -251,7 +251,7 @@ class Details extends Component {
                                       {selected_item_list.length > 0 && selected_item_list.map(eachSelectedItemList => {
                                           return <div className="rowFlexSpaceBetween">
                                               <span style={{width:"180px"}} className="rowFlex">
-                                                  {eachSelectedItemList.item_type == 'VEG' ?
+                                                  {eachSelectedItemList.item_type === 'VEG' ?
                                                       <FiberManualRecordIcon htmlColor="green"/> :  <FiberManualRecordIcon htmlColor="red"/> 
                                                   }
                                                   <span style={{fontFamily:'Pascal',color:'grey'}}>{eachSelectedItemList.item_name}</span>
