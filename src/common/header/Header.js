@@ -186,7 +186,7 @@ class Header extends Component {
         this.setState({failureMessage: ""});
 
         // Remove error message when no value is entered or deleted
-        if (event.target.value.length == 0)
+        if (event.target.value.length === 0)
             this.setState({contactNumberValidationErr: false});
     }
         
@@ -219,7 +219,7 @@ class Header extends Component {
         this.setState({signupFailureMessage: ""});
         
         // Remove error message when no value is entered or deleted
-        if (event.target.value.length == 0)
+        if (event.target.value.length === 0)
             this.setState({emailValidationErr: false});
     }
 
@@ -231,7 +231,7 @@ class Header extends Component {
         this.setState({signupFailureMessage: ""});
 
         // Remove error message when no value is entered or deleted
-        if (event.target.value.length == 0)
+        if (event.target.value.length === 0)
             this.setState({contactNumberSValidationErr: false});
     }
 
@@ -243,7 +243,7 @@ class Header extends Component {
         this.setState({signupFailureMessage: ""});
 
         // Remove error message when no value is entered or deleted
-        if (event.target.value.length == 0)
+        if (event.target.value.length === 0)
             this.setState({passwordSValidationErr: false});
     }
 
@@ -275,7 +275,7 @@ class Header extends Component {
             encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
-                    if (this.status == 200) { // Success
+                    if (this.status === 200) { // Success
                         that.setState({accessToken: this.getResponseHeader("access-token")});
                         that.setState({customerDetails: JSON.parse(this.responseText)});
                         that.setState({ modalIsOpen: false });
@@ -350,8 +350,8 @@ class Header extends Component {
             
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
-                    if ((this.status == 200) || 
-                        (this.status == 201)) { // Success
+                    if ((this.status === 200) || 
+                        (this.status === 201)) { // Success
                         that.setState({customerId: this.getResponseHeader("id")});
                         // Move to Login TAB
                         that.setState({ tabIndex: 0 });
