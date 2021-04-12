@@ -43,7 +43,8 @@ class Header extends Component {
         this.state = {
             searchTerm:'',
             modalIsOpen: false,
-            tabIndex:0,
+            tabIndex:0, // Index to switch between Login and Sign up
+            // Details used for Login TAB
             contactNumber: "",
             password: "",
             contactNumberError: false,
@@ -52,6 +53,7 @@ class Header extends Component {
             passwordValidationErr: false,
             authFailure: false,
             loggedin:false,
+            // Details used for Sign up TAB
             firstName:"",
             lastName:"",
             email:"",
@@ -66,6 +68,7 @@ class Header extends Component {
             passwordSValidationErr: false,
             signupFailure: false,
             signupFailureMessage:"",
+            // Logged in customer details
             accessToken:"",
             customerDetails:"",
             customerId:"",
@@ -85,12 +88,50 @@ class Header extends Component {
         this.props.onSearchSubmit(e);
     }
 
+    // Cleanup all the login related details when we close modal or logged in
+    cleanupLoginDetails = () => {
+
+        this.setState({ contactNumber: "" });
+        this.setState({ password: "" });
+        this.setState({ contactNumberError: false });
+        this.setState({ contactNumberValidationErr: false });
+        this.setState({ passwordError: false });
+        this.setState({ passwordValidationErr: false });
+        this.setState({ authFailure: false });
+        this.setState({ failureMessage: "" });
+    }
+
+    // cleanup all the signup related details when we close modal or signed up successfully
+    cleanupSigninDetails = () => {
+
+        this.setState({ firstName: "" });
+        this.setState({ lastName: "" });
+        this.setState({ email: "" });
+        this.setState({ contactSNumber: "" });
+        this.setState({ passwordS: "" });
+        this.setState({ firstNameError: false });
+        this.setState({ emailError: false });
+        this.setState({ emailValidationErr: false });
+        this.setState({ contactNumberSError: false });
+        this.setState({ contactNumberSValidationErr: false });
+        this.setState({ passwordSError: false });
+        this.setState({ passwordSValidationErr: false });
+        this.setState({ signupFailure: false });
+        this.setState({ signupFailureMessage: "" });
+
+    }
+
     openModal = () => {
         this.setState({ modalIsOpen: true });
     };
     
     closeModal = () => {
         this.setState({ modalIsOpen: false });
+        // Make sure it always starts with Login TAB
+        this.setState({ tabIndex: 0 });
+        // Clean up all state information for both Login and Signup
+        this.cleanupLoginDetails();
+        this.cleanupSigninDetails();
     };
 
     msgClose = () => {
@@ -110,12 +151,14 @@ class Header extends Component {
         this.setState({ anchorEl:e.currentTarget});
     }
 
+    // Re-direct to the profile page
     handleProfile = () => {
         this.setState({ menuOpen: false });
         let page = "/profile/";
         this.props.history.push(page, true);
     }
 
+    // Handling logout event
     handleLogout = () => {
         this.setState({menuOpen: false });
 
@@ -124,19 +167,25 @@ class Header extends Component {
         this.setState({loggedin: false});
         this.setState({loggedinMsgDisp: false});
         this.setState({anchorEl:""});
+
+        this.props.onLogout();
         
     }
 
+    // Move between login and sign up TAB's
     handleChange = (event, newValue) => {
         this.setState({tabIndex: newValue});
     };
 
-    /* Handle Username and password inputs */
+    /* Handle contact number and password inputs */
     contactNumberChangeHandler = event => {
         this.setState({contactNumber: event.target.value });
         this.setState({contactNumberError: false});
+        this.setState({contactNumberValidationErr: false});
         this.setState({authFailure: false});
+        this.setState({failureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({contactNumberValidationErr: false});
     }
@@ -145,24 +194,31 @@ class Header extends Component {
         this.setState({password: event.target.value });
         this.setState({passwordError: false});
         this.setState({authFailure: false});
+        this.setState({failureMessage: ""});
     }
 
+    /* Handle contact number, password, first, last name inputs */
     firstNameChangeHandler = event => {
         this.setState({firstName: event.target.value });
         this.setState({firstNameError: false});
         this.setState({signupFailure: false});
+        this.setState({signupFailureMessage: ""});
     }
 
     lastNameChangeHandler = event => {
         this.setState({lastName: event.target.value });
         this.setState({signupFailure: false});
+        this.setState({signupFailureMessage: ""});
     }
 
     emailChangeHandler = event => {
         this.setState({email: event.target.value });
         this.setState({emailError: false});
         this.setState({signupFailure: false});
+        this.setState({emailValidationErr: false});
+        this.setState({signupFailureMessage: ""});
         
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({emailValidationErr: false});
     }
@@ -171,7 +227,10 @@ class Header extends Component {
         this.setState({contactSNumber: event.target.value });
         this.setState({contactNumberSError: false});
         this.setState({signupFailure: false});
+        this.setState({contactNumberSValidationErr: false});
+        this.setState({signupFailureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({contactNumberSValidationErr: false});
     }
@@ -180,11 +239,15 @@ class Header extends Component {
         this.setState({passwordS: event.target.value });
         this.setState({passwordSError: false});
         this.setState({signupFailure: false});
+        this.setState({passwordSValidationErr: false});
+        this.setState({signupFailureMessage: ""});
 
+        // Remove error message when no value is entered or deleted
         if (event.target.value.length == 0)
             this.setState({passwordSValidationErr: false});
     }
 
+    /* Handle login */
     authHandler = () => {
         let error = false;
         let data = null;
@@ -195,7 +258,7 @@ class Header extends Component {
         if (this.state.contactNumber === "") {
             this.setState({contactNumberError: true});
             error = true;
-        } else {
+        } else { /* Check if valid phone number is entered */
             let phoneno = /^\d{10}$/;
             if (this.state.contactNumber.match(phoneno) === null) {
                 this.setState({contactNumberValidationErr: true});
@@ -212,13 +275,19 @@ class Header extends Component {
             encodedAuth = btoa(this.state.contactNumber + ":" + this.state.password);
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
-                    if (this.status == 200) {
+                    if (this.status == 200) { // Success
                         that.setState({accessToken: this.getResponseHeader("access-token")});
                         that.setState({customerDetails: JSON.parse(this.responseText)});
                         that.setState({ modalIsOpen: false });
                         that.setState({loggedin: true});
                         that.setState({loggedinMsgDisp: true});
-                    } else {
+                        // Clean up all state information for both Login and Signup
+                        that.cleanupLoginDetails();
+                        that.cleanupSigninDetails();
+                        // Make sure it comes back in Login TAB
+                        that.setState({ tabIndex: 0 });
+                        that.props.onLogin(that.state.accessToken, that.state.customerDetails);
+                    } else { // failure - display the error message received
                         that.setState({failureMessage: JSON.parse(this.responseText).message});
                         that.setState({authFailure: true});
                     }
@@ -231,6 +300,7 @@ class Header extends Component {
         }
     }
 
+    /* Handle sign up */
     signupHandler = () => {
         let error = false;
         let requestData = {"contact_number":"", "email_address":"", "first_name":"", "last_name":"", "password":""}
@@ -246,7 +316,7 @@ class Header extends Component {
         if (this.state.email === "") {
             this.setState({emailError: true});
             error = true;
-        } else {
+        } else { // check if proper email format is entered
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             if (this.state.email.match(mailformat) === null) {
                 this.setState({emailValidationErr: true});
@@ -257,7 +327,7 @@ class Header extends Component {
         if (this.state.contactSNumber === "") {
             this.setState({contactNumberSError: true});
             error = true;
-        } else {
+        } else { // Check if phone no format is correct
             var phoneno = /^\d{10}$/;
             if (this.state.contactSNumber.match(phoneno) === null) {
                 this.setState({contactNumberSValidationErr: true});
@@ -268,7 +338,7 @@ class Header extends Component {
         if (this.state.passwordS === "") {
             this.setState({passwordSError: true});
             error = true;
-        } else {
+        } else { // Check for proper password format
             var passwordFormat =  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
             if (this.state.passwordS.match(passwordFormat) === null) {
                 this.setState({passwordSValidationErr: true});
@@ -281,14 +351,16 @@ class Header extends Component {
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     if ((this.status == 200) || 
-                        (this.status == 201)) {
+                        (this.status == 201)) { // Success
                         that.setState({customerId: this.getResponseHeader("id")});
                         // Move to Login TAB
                         that.setState({ tabIndex: 0 });
                         that.setState({signupFailure: false});
                         // Need to notify that user has successfuly signed up
                         that.setState({signedUpNotify: true});
-                    } else {
+                        // cleanup all states pertaining to Signin
+                        that.cleanupSigninDetails();
+                    } else { // Request Failed, display the reason for failure
                         that.setState({signupFailureMessage: JSON.parse(this.responseText).message});
                         that.setState({signupFailure: true});
                     }
@@ -298,6 +370,7 @@ class Header extends Component {
             xhr.setRequestHeader("Cache-Control", "no-cache");
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.setRequestHeader("charset", "UTF-8");
+            // Filll in the signup details
             requestData["contact_number"]=this.state.contactSNumber;
             requestData["email_address"]=this.state.email;
             requestData["first_name"]=this.state.firstName;
@@ -317,6 +390,7 @@ class Header extends Component {
             <FastfoodIcon htmlColor="white" fontSize="large"/>
             </div>
 
+            {/* Display restaurant search if only in home page */}
             { this.props.type === "Home" ?
                 (<div className="header-search">
                     <InputLabel htmlFor="search"></InputLabel>
@@ -325,6 +399,7 @@ class Header extends Component {
                 </div>) : null 
             }
 
+            {/* Notify successful sign up at the Left Bottom Corner */}
             { this.state.signedUpNotify === true ? (
                 <Snackbar
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}}
@@ -335,6 +410,7 @@ class Header extends Component {
                     ) : null
             }
 
+            {/* Notify successful Login at the Left Bottom Corner */}
             { this.state.loggedin === true ?
                 (<div className="header-loggedin">
                     <div className="loggedin-box">
@@ -369,14 +445,14 @@ class Header extends Component {
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="contact_number" required="true">Contact No</InputLabel>
-                                        <Input id="contact_number" onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="contact_number" value={this.state.contactNumber} onChange={this.contactNumberChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.contactNumberError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                         {this.state.contactNumberValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Contact</span> : ''}
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                        <Input id="password" onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="password" value={this.state.password} onChange={this.passwordChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.passwordError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                 </FormControl>
                                 <br /><br />
@@ -393,25 +469,25 @@ class Header extends Component {
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="first_name" required="true">First Name</InputLabel>
-                                        <Input id="first_name" onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="first_name" value={this.state.firstName} onChange={this.firstNameChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.firstNameError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="last_name" required="true">Last Name</InputLabel>
-                                        <Input id="last_name" onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
+                                        <Input id="last_name" value={this.state.lastName} onChange={this.lastNameChangeHandler} aria-describedby="my-helper-text" /> 
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="Email" required="true">Email</InputLabel>
-                                        <Input id="Email" onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="Email" value={this.state.email} onChange={this.emailChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.emailError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                         {this.state.emailValidationErr ? <span style={{color: "red", textAlign:"left"}}>Invalid Email</span> : ""}
                                 </FormControl>
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="password" required="true">Password</InputLabel>
-                                        <Input id="password" onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="password" value={this.state.passwordS} onChange={this.passwordSChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.passwordSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                         {this.state.passwordSValidationErr ? <span style={{color: "red", textAlign:"left", overflowWrap:"break-word"}}>
                                         Password must contain 
@@ -424,7 +500,7 @@ class Header extends Component {
                                 <br /><br />
                                 <FormControl className={classes.formControl}>
                                     <InputLabel htmlFor="contact_numbers" required="true">Contact No</InputLabel>
-                                        <Input id="contact_numbers" onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
+                                        <Input id="contact_numbers" value={this.state.contactSNumber} onChange={this.contactNumberSChangeHandler} aria-describedby="my-helper-text" />
                                         {this.state.contactNumberSError ? <span style={{color: "red", textAlign:"left"}}>required</span> : ''} 
                                         {this.state.contactNumberSValidationErr ? <span style={{color: "red", textAlign:"left"}}>
                                             Contact No. must

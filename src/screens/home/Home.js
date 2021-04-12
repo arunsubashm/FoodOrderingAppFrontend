@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
 import '../../../node_modules/font-awesome/css/font-awesome.min.css';
 
-
+// Define the styles used in the page
 const styles = theme => ({
     root: {
         margin: '20px',
@@ -30,6 +30,9 @@ class Home extends Component {
             currRestaurantDetails: [],
             restaurantCategories:'',
             searchTerm:' ',
+            accessToken:'',
+            customerDetails:'',
+            loggedin:false,
         }
     }
 
@@ -42,11 +45,26 @@ class Home extends Component {
         this.setState({currRestaurantDetails : newAr});
     }
 
+    /* Update login details */
+    updateLoginDetails = (accesstoken, customerdetails) => {
+        this.setState({accessToken:accesstoken});
+        this.setState({customerDetails:customerdetails});
+        this.setState({loggedin:true});
+    }
+
+    /* Clear off login details */
+    updateLogout = () => {
+        this.setState({accessToken:""});
+        this.setState({customerDetails:""});
+        this.setState({loggedin:false});
+    }
+
     componentWillMount() {
         let data = null;
         let xhr = new XMLHttpRequest();
         let that = this;
 
+        // Get the list of restaurants 
         xhr.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 if (this.status == 200) { 
@@ -68,6 +86,7 @@ class Home extends Component {
                         xhra[i].setRequestHeader("Cache-Control", "no-cache");
                         xhra[i].send(data);
                     }
+                    // currRestaurantDetails will dynamically change based on search string
                     that.setState({currRestaurantDetails : that.state.restaurantDetails});
                     that.state.currRestaurantDetails.sort((a, b) => (a.customer_rating > b.customer_rating) ? 0 : 1);
                 }
@@ -78,9 +97,18 @@ class Home extends Component {
         xhr.send(data);
     }
 
+    // re-direct to the restaurant details page - pass customer details
     resturantDetailsHandler = (key) => {
         let page = "/restaurant/" + key;
-        this.props.history.push(page, true);
+
+        this.props.history.push({
+            pathname: page,
+            state: {
+                loggedin: this.state.loggedin,
+                accessToken: this.state.accessToken,
+                customerDetails: this.state.customerDetails,
+            }
+        });
     }
 
     render() {
@@ -88,12 +116,12 @@ class Home extends Component {
 
         return (
         <div>
-            <Header type="Home" history = {this.props.history} onSearchSubmit={this.updateRestaurantRecords}/>
+            <Header type="Home" history = {this.props.history} onLogin={this.updateLoginDetails} onLogout={this.updateLogout} onSearchSubmit={this.updateRestaurantRecords}/>
             {this.state.currRestaurantDetails.length === 0 ? 
                 (<div>
                     No restaurant with the given name.
                 </div>) : 
-                (
+                ( // Show details of all resturants, dynamic
                 <div className="grid-container">
                     {this.state.currRestaurantDetails.map((restaurants) => (
                         <div key={restaurants.id} onClick={() => this.resturantDetailsHandler(restaurants.id)}>

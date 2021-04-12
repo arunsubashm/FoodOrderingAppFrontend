@@ -4,11 +4,24 @@
     display:flex;
   }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 600px) { /* Screen responsivness */
+   
     .header {
-        background-color: #263238;
-        display:flex;
+      background-color: #263238;
+      height: 115px;
+      display:flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
+    .header-login {
+      flex:1;
+      display:flex;
+      justify-content: flex-start !important;
+      align-items: center;
+      margin: 5px;
+    
+    }
+  
 }   
 
   .header-logo {
@@ -38,7 +51,7 @@
     margin-right: 20px;
   }
 
-  .login-box {
+  .login-box { /* login box */
     display:flex;
     justify-content: flex-end;
     align-items: center;
@@ -49,7 +62,7 @@
     padding-left: 10px;
   }
 
-  .loggedin-box {
+  .loggedin-box { /* Display once logged in */
     display:flex;
     justify-content: flex-end;
     align-items: center;
@@ -59,7 +72,7 @@
     padding-left: 10px;
   }
 
-  .myModal {
+  .myModal { /* Definition of modal to show - login and signup */
     position:fixed;
     width: auto;
     height:auto;
