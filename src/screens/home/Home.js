@@ -30,6 +30,9 @@ class Home extends Component {
             currRestaurantDetails: [],
             restaurantCategories:'',
             searchTerm:' ',
+            accessToken:'',
+            customerDetails:'',
+            loggedin:false,
         }
     }
 
@@ -40,6 +43,26 @@ class Home extends Component {
             return e.restaurant_name.toLowerCase().includes(event.target.value.toLowerCase());
         });
         this.setState({currRestaurantDetails : newAr});
+    }
+
+    /* Update login details */
+    updateLoginDetails = (accesstoken, customerdetails) => {
+        this.setState({accessToken:accesstoken});
+        this.setState({customerDetails:customerdetails});
+        this.setState({loggedin:true});
+
+        console.log("updateLoginDetails");
+        console.log(this.state.accessToken);
+        console.log(this.state.customerDetails.first_name);
+    }
+
+    /* Update login details */
+    updateLogout = () => {
+        this.setState({accessToken:""});
+        this.setState({customerDetails:""});
+        this.setState({loggedin:false});
+
+        console.log("updateLogout");
     }
 
     componentWillMount() {
@@ -88,7 +111,7 @@ class Home extends Component {
 
         return (
         <div>
-            <Header type="Home" history = {this.props.history} onSearchSubmit={this.updateRestaurantRecords}/>
+            <Header type="Home" history = {this.props.history} onLogin={this.updateLoginDetails} onLogout={this.updateLogout} onSearchSubmit={this.updateRestaurantRecords}/>
             {this.state.currRestaurantDetails.length === 0 ? 
                 (<div>
                     No restaurant with the given name.

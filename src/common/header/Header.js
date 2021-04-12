@@ -160,6 +160,8 @@ class Header extends Component {
         this.setState({loggedin: false});
         this.setState({loggedinMsgDisp: false});
         this.setState({anchorEl:""});
+
+        this.props.onLogout();
         
     }
 
@@ -270,6 +272,7 @@ class Header extends Component {
                         that.cleanupSigninDetails();
                         // Make sure it comes back in Login TAB
                         that.setState({ tabIndex: 0 });
+                        that.props.onLogin(that.state.accessToken, that.state.customerDetails);
                     } else {
                         that.setState({failureMessage: JSON.parse(this.responseText).message});
                         that.setState({authFailure: true});
