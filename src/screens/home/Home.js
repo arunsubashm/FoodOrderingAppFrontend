@@ -50,10 +50,6 @@ class Home extends Component {
         this.setState({accessToken:accesstoken});
         this.setState({customerDetails:customerdetails});
         this.setState({loggedin:true});
-
-        console.log("updateLoginDetails");
-        console.log(this.state.accessToken);
-        console.log(this.state.customerDetails.first_name);
     }
 
     /* Update login details */
@@ -61,8 +57,6 @@ class Home extends Component {
         this.setState({accessToken:""});
         this.setState({customerDetails:""});
         this.setState({loggedin:false});
-
-        console.log("updateLogout");
     }
 
     componentWillMount() {
@@ -103,7 +97,16 @@ class Home extends Component {
 
     resturantDetailsHandler = (key) => {
         let page = "/restaurant/" + key;
-        this.props.history.push(page, true);
+        //this.props.history.push(page, true);
+
+        this.props.history.push({
+            pathname: page,
+            state: {
+                loggedin: this.state.loggedin,
+                accessToken: this.state.accessToken,
+                customerDetails: this.state.customerDetails,
+            }
+        });
     }
 
     render() {
